@@ -1,6 +1,8 @@
 package com.example.Arju.blogpost.View_Controller;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -91,6 +93,9 @@ public class LoginActivity extends AppCompatActivity {
                                         task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
 
+                            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                            vibrator.vibrate(50);
+
                             //After on completion make the progress bar invisible by writing the following code of line
                             loginProgress.setVisibility(View.INVISIBLE);
 
@@ -122,6 +127,8 @@ public class LoginActivity extends AppCompatActivity {
                 Intent regIntent = new Intent(LoginActivity.this, RegisterActivity.class);
                 //Started the Intent
                 startActivity(regIntent);
+
+
             }
         });
 
@@ -141,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
         //implements Parcelable UserInfo which is used in helping to check if the user is logged in or not
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            //If user is logged in then send him to the MianActivity
+            //If user is logged in then send him to the MainActivity
             sendToMain();
 
         }

@@ -1,6 +1,11 @@
 package com.example.Arju.blogpost.View_Controller;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +17,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.Arju.blogpost.R;
@@ -23,6 +30,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
+
+        TextView ProximitySensor,data;
+    SensorManager mysensorManager;
+    Sensor myproximitySensor;
+
 
     //Declaration of Toolbar
     private Toolbar mainToolbar;
@@ -46,6 +58,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+                setTitle("Light Sensor");
+        //LightInstance();
+
+
+        ProximitySensor = (TextView) findViewById(R.id.proximitySensor);
+        data = (TextView) findViewById(R.id.data);
+        mysensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        myproximitySensor = mysensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        if (myproximitySensor == null) {
+            ProximitySensor.setText("No Proximity Sensor!");
+
+        } else {
+            mysensorManager.registerListener(proximitySensorEventListener,
+                    myproximitySensor,
+                    SensorManager.SENSOR_DELAY_NORMAL);
+        }
 
         //Getting an instance of this class for authentication and Firebase storage
         // by calling getInstance() method,after calling this method we will be able to firebase features
@@ -108,6 +137,28 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    /*private void LightInstance() {
+        //
+        mysensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        Sensor sensor = mysensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        SensorEventListener lightlistener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+                    Toast.makeText(MainActivity.this, "onSenor Change :"+ event.values[0], Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
+        };
+        mysensorManager.registerListener(lightlistener,sensor,SensorManager.SENSOR_DELAY_NORMAL);
+    }*/
+    
 
 
     //This method will occur on start of the activity
@@ -202,4 +253,29 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
 
     }
+
+    SensorEventListener proximitySensorEventListener
+            = new SensorEventListener() {
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            // TODO Auto-generated method stub
+        }
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            WindowManager.LayoutParams params = MainActivity.this.getWindow().getAttributes();
+            if(event.sensor.getType()==Sensor.TYPE_PROXIMITY){
+
+                if(event.values[0]==0){
+                    params.flags |= WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+                    params.screenBrightness = 0;
+                    getWindow().setAttributes(params);
+                }
+                else{
+                    params.flags |= WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+                    params.screenBrightness = -1f;
+                    getWindow().setAttributes(params);
+                }
+            }
+        }
+    };
 }
